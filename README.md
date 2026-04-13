@@ -114,5 +114,5 @@ Acesse: `http://localhost:5173`
 ## Identificação
 
 **Hemily Ramos**  
-Análise e Desenvolvimento de Sistemas — Escola Politécnica e de Artes da PUC Goiás 
+Análise e Desenvolvimento de Sistemas — Escola Politécnica e de Artes da PUC Goiás  
 Desenvolvimento de Software WEB — Prof. Alexandre Cláudio de Almeida — Abril de 2026
