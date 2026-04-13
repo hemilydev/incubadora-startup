@@ -1,0 +1,524 @@
+/* =============================================
+   Incubadora – PUC Goiás
+   Paleta: Azul, Branco e Preto
+   ============================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --azul:        #003DA5; /* azul PUC */
+  --azul-claro:  #1A56C4;
+  --azul-fundo:  #EEF3FB; /* fundo levinho azulado */
+  --azul-borda:  #C2D4F0;
+  --preto:       #111111;
+  --cinza-texto: #444444;
+  --cinza-fraco: #888888;
+  --cinza-borda: #DDDDDD;
+  --branco:      #FFFFFF;
+  --vermelho:    #CC2200; /* só para desclassificada */
+  --verde:       #1A7A3C; /* só para relatório enviado */
+  --fonte: "Inter", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--fonte);
+  background: var(--azul-fundo);
+  color: var(--preto);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Navbar ── */
+.navbar-dap {
+  background: var(--azul);
+  padding: 0 1.5rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-logo-icone {
+  width: 36px;
+  height: 36px;
+  background: var(--branco);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--azul);
+  letter-spacing: -0.5px;
+}
+
+.navbar-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--branco);
+  letter-spacing: 0.2px;
+}
+
+.navbar-subtitulo {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 400;
+}
+
+.navbar-badge {
+  background: rgba(255,255,255,0.15);
+  color: var(--branco);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* ── Layout ── */
+.layout-wrapper {
+  display: flex;
+  min-height: calc(100vh - 60px);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--branco);
+  border-right: 1px solid var(--cinza-borda);
+  padding: 1.25rem 0.75rem;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.sidebar-titulo {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cinza-fraco);
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--cinza-texto);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-btn:hover {
+  background: var(--azul-fundo);
+  color: var(--azul);
+}
+
+.sidebar-btn.ativo {
+  background: var(--azul-fundo);
+  color: var(--azul);
+  font-weight: 600;
+}
+
+.sidebar-btn .count {
+  background: var(--azul-borda);
+  color: var(--azul);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 99px;
+}
+
+.sidebar-btn.ativo .count {
+  background: var(--azul);
+  color: var(--branco);
+}
+
+.sidebar-hr {
+  border: none;
+  border-top: 1px solid var(--cinza-borda);
+  margin: 0.75rem 0;
+}
+
+/* ── Conteúdo principal ── */
+.conteudo {
+  flex: 1;
+  padding: 1.5rem;
+  min-width: 0;
+}
+
+/* ── Dashboard ── */
+.dashboard-titulo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cinza-fraco);
+  margin-bottom: 0.75rem;
+}
+
+.contadores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.contador-card {
+  background: var(--branco);
+  border: 1px solid var(--cinza-borda);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.contador-numero {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.contador-label {
+  font-size: 0.72rem;
+  color: var(--cinza-fraco);
+  font-weight: 500;
+}
+
+.contador-card.cor-azul .contador-numero   { color: var(--azul); }
+.contador-card.cor-preto .contador-numero  { color: var(--preto); }
+.contador-card.cor-vermelho .contador-numero { color: var(--vermelho); }
+.contador-card.cor-laranja .contador-numero  { color: #B25A00; }
+
+/* ── Cards de startup ── */
+.secao-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cinza-fraco);
+  margin-bottom: 0.75rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.startup-card {
+  background: var(--branco);
+  border: 1px solid var(--cinza-borda);
+  border-radius: 10px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.startup-card:hover {
+  box-shadow: 0 4px 16px rgba(0,61,165,0.1);
+  border-color: var(--azul-borda);
+}
+
+.startup-card.desclassificada {
+  opacity: 0.6;
+  border-color: #f5c2bb;
+  background: #fff8f7;
+}
+
+.card-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-nome {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--preto);
+  line-height: 1.3;
+}
+
+.card-fundador {
+  font-size: 0.78rem;
+  color: var(--cinza-fraco);
+  margin-top: 2px;
+}
+
+.badge-ciclo {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+  background: var(--azul-fundo);
+  color: var(--azul);
+  border: 1px solid var(--azul-borda);
+}
+
+.badge-ciclo.desclassificada {
+  background: #FDECEA;
+  color: var(--vermelho);
+  border-color: #f5c2bb;
+}
+
+.card-infos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.info-chip {
+  font-size: 0.72rem;
+  color: var(--cinza-texto);
+  background: var(--azul-fundo);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.relatorio-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.relatorio-chip.enviado {
+  background: #E8F5EE;
+  color: var(--verde);
+}
+
+.relatorio-chip.pendente {
+  background: #FFF4E5;
+  color: #B25A00;
+}
+
+.card-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Botões ── */
+.btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+  font-family: var(--fonte);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-azul {
+  background: var(--azul);
+  color: var(--branco);
+  border-color: var(--azul);
+}
+.btn-azul:hover { background: var(--azul-claro); border-color: var(--azul-claro); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--azul);
+  border-color: var(--azul-borda);
+}
+.btn-outline:hover { background: var(--azul-fundo); }
+
+.btn-vermelho {
+  background: transparent;
+  color: var(--vermelho);
+  border-color: #f5c2bb;
+}
+.btn-vermelho:hover { background: #FDECEA; }
+
+.btn-verde {
+  background: transparent;
+  color: var(--verde);
+  border-color: #A8D5BC;
+}
+.btn-verde:hover { background: #E8F5EE; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: var(--branco);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--cinza-borda);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.modal-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-nome {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--preto);
+}
+
+.modal-fechar {
+  background: transparent;
+  border: 1px solid var(--cinza-borda);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  color: var(--cinza-fraco);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-fechar:hover { background: var(--azul-fundo); color: var(--azul); }
+
+.detalhe-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cinza-fraco);
+  margin-bottom: 3px;
+}
+
+.detalhe-valor {
+  font-size: 0.875rem;
+  color: var(--preto);
+}
+
+.modal-descricao {
+  font-size: 0.85rem;
+  color: var(--cinza-texto);
+  line-height: 1.6;
+  background: var(--azul-fundo);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+/* ── Footer ── */
+.footer-dap {
+  background: var(--branco);
+  border-top: 1px solid var(--cinza-borda);
+  padding: 1.25rem 1.5rem;
+  margin-top: 2rem;
+}
+
+.footer-dap address {
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--cinza-fraco);
+  line-height: 1.8;
+}
+
+.footer-dap address strong {
+  color: var(--cinza-texto);
+}
+
+/* ── Estado vazio ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--cinza-fraco);
+  font-size: 0.875rem;
+}
+
+/* ── Responsividade ── */
+@media (max-width: 768px) {
+  .layout-wrapper { flex-direction: column; }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--cinza-borda);
+    padding: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .sidebar-titulo { display: none; }
+  .sidebar-hr { display: none; }
+
+  .sidebar-btn {
+    width: auto;
+    flex-shrink: 0;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 99px;
+    font-size: 0.78rem;
+  }
+
+  .sidebar-btn.ativo {
+    background: var(--azul);
+    color: var(--branco);
+  }
+
+  .sidebar-btn.ativo .count {
+    background: rgba(255,255,255,0.25);
+    color: var(--branco);
+  }
+
+  .conteudo { padding: 1rem; }
+  .contadores-grid { grid-template-columns: repeat(3, 1fr); }
+}
