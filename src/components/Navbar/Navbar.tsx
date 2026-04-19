@@ -1,6 +1,10 @@
 import { IPropsNavbar } from "../../types";
 
-export function Navbar({ titulo }: IPropsNavbar) {
+interface IPropsNavbarExtendida extends IPropsNavbar {
+  onNovaStartup: () => void;
+}
+
+export function Navbar({ titulo, onNovaStartup }: IPropsNavbarExtendida) {
   return (
     <header className="navbar-dap">
       <div className="navbar-logo">
@@ -14,7 +18,13 @@ export function Navbar({ titulo }: IPropsNavbar) {
           <div className="navbar-subtitulo">PUC Goiás</div>
         </div>
       </div>
-      <span className="navbar-badge">Painel Administrativo</span>
+
+      <div className="d-flex align-items-center gap-3">
+        <button className="btn btn-nova-startup" onClick={onNovaStartup}>
+          + Nova Startup
+        </button>
+        <span className="navbar-badge d-none d-sm-inline">Painel Administrativo</span>
+      </div>
     </header>
   );
 }
