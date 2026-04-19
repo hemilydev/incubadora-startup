@@ -7,6 +7,7 @@ import { Modal }       from "./components/Modal/Modal";
 import { Footer }      from "./components/Footer/Footer";
 import { startupsIniciais } from "./data/startups";
 import { IStartup, IContadores, CicloStartup } from "./types";
+import { ModalNovaStartup } from "./components/ModalNovaStartup/ModalNovaStartup";
 import "./styles/global.css";
 
 type FiltroAtivo = CicloStartup | "Todas" | "Desclassificadas";
@@ -15,6 +16,7 @@ function App() {
   const [startups, setStartups] = useState<IStartup[]>(startupsIniciais);
   const [filtro, setFiltro] = useState<FiltroAtivo>("Todas");
   const [modalStartup, setModalStartup] = useState<IStartup | null>(null);
+  const [modalNovaStartup, setModalNovaStartup] = useState<boolean>(false);
 
   // Avança a startup para o próximo ciclo
   function handleAvancarCiclo(id: number): void {
@@ -45,6 +47,12 @@ function App() {
     );
   }
 
+  // Adiciona uma nova startup
+  function handleNovaStartup(novaStartup: IStartup): void {
+    setStartups((prev) => [...prev, novaStartup]);
+    setModalNovaStartup(false);
+  }
+
   // Contadores derivados do estado atual (atualizam automaticamente)
   const contadores = useMemo<IContadores>(() => {
     const ativas = startups.filter((s) => s.status === "Ativa");
@@ -68,7 +76,7 @@ function App() {
   return (
     <>
       {/* header – barra de navegação superior */}
-      <Navbar titulo="Incubadora de Empresas" />
+      <Navbar titulo="Incubadora de Empresas" onNovaStartup={() => setModalNovaStartup(true)} />
 
       <div className="layout-wrapper">
         {/* aside – menu lateral de filtros */}
@@ -118,6 +126,14 @@ function App() {
       {/* Modal de detalhes */}
       {modalStartup && (
         <Modal startup={modalStartup} onFechar={() => setModalStartup(null)} />
+      )}
+
+      {/* Modal de nova startup */}
+      {modalNovaStartup && (
+        <ModalNovaStartup
+          onFechar={() => setModalNovaStartup(false)}
+          onSalvar={handleNovaStartup}
+        />
       )}
     </>
   );
