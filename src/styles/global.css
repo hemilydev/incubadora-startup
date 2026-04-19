@@ -522,3 +522,40 @@ body {
   .conteudo { padding: 1rem; }
   .contadores-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ── Botão Nova Startup na Navbar ── */
+.btn-nova-startup {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--branco);
+  cursor: pointer;
+  font-family: var(--fonte);
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-nova-startup:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Inputs do formulário ── */
+.modal-select,
+.modal-select:focus {
+  width: 100%;
+  background: var(--branco);
+  border: 1px solid var(--cinza-borda);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--fonte);
+  font-size: 0.875rem;
+  color: var(--preto);
+  outline: none;
+}
+
+.modal-select:focus {
+  border-color: var(--azul);
+}
