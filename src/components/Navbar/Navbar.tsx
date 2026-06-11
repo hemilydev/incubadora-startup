@@ -3,10 +3,11 @@ import { IPropsNavbar } from "../../types";
 interface IPropsNavbarExtendida extends IPropsNavbar {
   onNovaStartup: () => void;
   onLogout: () => void;
+  pesquisa: string;
+  onPesquisaChange: (valor: string) => void;
 }
 
-export function Navbar({ titulo, onNovaStartup, onLogout }: IPropsNavbarExtendida) {
-  // Pega o nome do usuário salvo no localStorage após o login
+export function Navbar({ titulo, onNovaStartup, onLogout, pesquisa, onPesquisaChange }: IPropsNavbarExtendida) {
   const nome = localStorage.getItem("nome") ?? "Usuário";
 
   return (
@@ -23,17 +24,36 @@ export function Navbar({ titulo, onNovaStartup, onLogout }: IPropsNavbarExtendid
         </div>
       </div>
 
+      {/* Barra de pesquisa centralizada */}
+      <div style={{ flex: 1, maxWidth: "400px", margin: "0 24px" }}>
+        <input
+          type="text"
+          placeholder="🔍 Pesquisar projeto ou fundador..."
+          value={pesquisa}
+          onChange={(e) => onPesquisaChange(e.target.value)}
+          onFocus={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
+          onBlur={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
+          style={{
+            width: "100%",
+            padding: "8px 14px",
+            borderRadius: "8px",
+            border: "1.5px solid rgba(255,255,255,0.8)",
+            background: "rgba(255,255,255,0.2)",
+            color: "#fff",
+            fontSize: "13px",
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+
       <div className="d-flex align-items-center gap-3">
         <button className="btn btn-nova-startup" onClick={onNovaStartup}>
           + Nova Startup
         </button>
-
-        {/* Nome do usuário logado */}
         <span className="navbar-badge d-none d-sm-inline">
           👤 {nome}
         </span>
-
-        {/* Botão de logout */}
         <button
           onClick={onLogout}
           style={{

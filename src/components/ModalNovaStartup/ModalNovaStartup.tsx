@@ -16,6 +16,7 @@ export function ModalNovaStartup({ onFechar, onSalvar }: IPropsModalNovaStartup)
   const [setor, setSetor] = useState<SetorStartup>("Tecnologia");
   const [descricao, setDescricao] = useState("");
   const [ciclo, setCiclo] = useState<1 | 2 | 3>(1);
+  const [dataEntrada, setDataEntrada] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
     const fecharEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onFechar(); };
@@ -24,16 +25,16 @@ export function ModalNovaStartup({ onFechar, onSalvar }: IPropsModalNovaStartup)
   }, [onFechar]);
 
   function handleSalvar(): void {
-    if (!nomeProjeto.trim() || !nomeFundador.trim() || !descricao.trim()) return;
+    if (!nomeProjeto.trim() || !nomeFundador.trim() || !descricao.trim() || !dataEntrada) return;
 
     const novaStartup: IStartup = {
       id: Date.now(),
       nomeProjeto,
       nomeFundador,
       setor,
-      ciclo: ciclo,
+      ciclo,
       status: "Ativa",
-      dataEntrada: new Date().toISOString().slice(0, 10),
+      dataEntrada,
       relatorioEnviado: false,
       descricao,
     };
@@ -99,6 +100,16 @@ export function ModalNovaStartup({ onFechar, onSalvar }: IPropsModalNovaStartup)
               <option value={2}>Ciclo 2 – Incubação (Tração)</option>
               <option value={3}>Ciclo 3 – Pós-incubação (Aceleração)</option>
             </select>
+          </div>
+
+          <div>
+            <p className="detalhe-label">Data de Entrada</p>
+            <input
+              className="modal-select"
+              type="date"
+              value={dataEntrada}
+              onChange={(e) => setDataEntrada(e.target.value)}
+            />
           </div>
 
           <div>

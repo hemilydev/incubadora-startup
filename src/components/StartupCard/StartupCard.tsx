@@ -7,6 +7,7 @@ const nomeCiclo: Record<number, string> = {
 };
 
 function formatarData(dataEntrada: string): string {
+  if (!dataEntrada) return "—";
   const [ano, mes] = dataEntrada.split("-");
   const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
   return `${meses[parseInt(mes) - 1]}/${ano}`;
@@ -15,8 +16,12 @@ function formatarData(dataEntrada: string): string {
 export function StartupCard({
   startup,
   onAvancarCiclo,
+  onVoltarCiclo,
   onDesclassificar,
+  onReativar,
   onRegistrarRelatorio,
+  onCancelarContrato,
+  onEditar,
   onVerDetalhes,
 }: IPropsStartupCard) {
   const desclassificada = startup.status === "Desclassificada";
@@ -39,26 +44,40 @@ export function StartupCard({
         <span className="info-chip">📅 {formatarData(startup.dataEntrada)}</span>
         <span className="info-chip">🏷️ {startup.setor}</span>
         <span className={`relatorio-chip ${startup.relatorioEnviado ? "enviado" : "pendente"}`}>
-          {startup.relatorioEnviado ? "✓ Relatório enviado" : "⚠ Relatório pendente"}
+          {startup.relatorioEnviado ? "✓ Contrato assinado" : "⚠ Contrato pendente"}
         </span>
       </div>
 
-      {/* Ações */}
+      {/* Ações para startups ativas */}
       {!desclassificada && (
         <div className="card-acoes">
           <button className="btn btn-outline" onClick={() => onVerDetalhes(startup)}>
             Detalhes
           </button>
 
-          {startup.ciclo < 3 && (
-            <button className="btn btn-azul" onClick={() => onAvancarCiclo(startup.id)}>
-              Avançar ciclo
+          <button className="btn btn-outline" onClick={() => onEditar(startup)}>
+            ✏️ Editar
+          </button>
+
+          {startup.ciclo > 1 && (
+            <button className="btn btn-outline" onClick={() => onVoltarCiclo(startup.id)}>
+              ← Voltar ciclo
             </button>
           )}
 
-          {!startup.relatorioEnviado && (
+          {startup.ciclo < 3 && (
+            <button className="btn btn-azul" onClick={() => onAvancarCiclo(startup.id)}>
+              Avançar ciclo →
+            </button>
+          )}
+
+          {!startup.relatorioEnviado ? (
             <button className="btn btn-verde" onClick={() => onRegistrarRelatorio(startup.id)}>
-              Registrar relatório
+              Registrar contrato
+            </button>
+          ) : (
+            <button className="btn btn-outline" onClick={() => onCancelarContrato(startup.id)}>
+              Cancelar contrato
             </button>
           )}
 
@@ -68,10 +87,14 @@ export function StartupCard({
         </div>
       )}
 
+      {/* Ações para startups desclassificadas */}
       {desclassificada && (
         <div className="card-acoes">
           <button className="btn btn-outline" onClick={() => onVerDetalhes(startup)}>
             Ver detalhes
+          </button>
+          <button className="btn btn-verde" onClick={() => onReativar(startup.id)}>
+            Reativar startup
           </button>
         </div>
       )}

@@ -4,6 +4,7 @@ import { Sidebar }     from "./components/Sidebar/Sidebar";
 import { Dashboard }   from "./components/Dashboard/Dashboard";
 import { StartupCard } from "./components/StartupCard/StartupCard";
 import { Modal }       from "./components/Modal/Modal";
+import { ModalEditarStartup } from "./components/ModalEditarStartup/ModalEditarStartup";
 import { Footer }      from "./components/Footer/Footer";
 import { IStartup, IContadores, CicloStartup } from "./types";
 import { ModalNovaStartup } from "./components/ModalNovaStartup/ModalNovaStartup";
@@ -12,9 +13,13 @@ import { isAuthenticated, logout } from "./services/authService";
 import {
   listarStartups,
   cadastrarStartup,
+  atualizarStartup,
   avancarCiclo,
+  voltarCiclo,
   desclassificarStartup,
+  reativarStartup,
   registrarRelatorio,
+  cancelarContrato,
   Startup as StartupAPI,
 } from "./services/startupService";
 import "./styles/global.css";
@@ -23,7 +28,6 @@ type FiltroAtivo = CicloStartup | "Todas" | "Desclassificadas";
 
 /**
  * Converte o formato do back-end para o formato usado pelo front-end.
- * O back-end usa strings ("CICLO1", "CICLO2"...) e o front usa números (1, 2, 3).
  */
 function converterParaIStartup(s: StartupAPI): IStartup {
   const cicloMap: Record<string, CicloStartup> = {
@@ -61,16 +65,17 @@ function converterParaStartupAPI(s: IStartup): StartupAPI {
 }
 
 function App() {
-  // Controla se o usuário está autenticado
   const [autenticado, setAutenticado] = useState<boolean>(isAuthenticated());
   const [startups, setStartups] = useState<IStartup[]>([]);
   const [filtro, setFiltro] = useState<FiltroAtivo>("Todas");
   const [modalStartup, setModalStartup] = useState<IStartup | null>(null);
   const [modalNovaStartup, setModalNovaStartup] = useState<boolean>(false);
+  const [modalEditarStartup, setModalEditarStartup] = useState<IStartup | null>(null);
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [pesquisa, setPesquisa] = useState<string>("");
 
   /**
-   * Carrega as startups do back-end ao iniciar ou após login.
+   * Carrega as startups do back-end.
    */
   const carregarStartups = useCallback(async () => {
     setCarregando(true);
@@ -84,13 +89,14 @@ function App() {
     }
   }, []);
 
-  // Carrega startups quando o usuário estiver autenticado
   useEffect(() => {
     if (autenticado) carregarStartups();
   }, [autenticado, carregarStartups]);
 
-  // Avança a startup para o próximo ciclo
+  /** Avança a startup para o próximo ciclo com confirmação. */
   async function handleAvancarCiclo(id: number): Promise<void> {
+    const startup = startups.find(s => s.id === id);
+    if (!window.confirm(`Deseja avançar o ciclo de "${startup?.nomeProjeto}"?`)) return;
     try {
       await avancarCiclo(id);
       await carregarStartups();
@@ -99,8 +105,22 @@ function App() {
     }
   }
 
-  // Marca a startup como desclassificada
+  /** Volta a startup para o ciclo anterior com confirmação. */
+  async function handleVoltarCiclo(id: number): Promise<void> {
+    const startup = startups.find(s => s.id === id);
+    if (!window.confirm(`Deseja voltar o ciclo de "${startup?.nomeProjeto}"?`)) return;
+    try {
+      await voltarCiclo(id);
+      await carregarStartups();
+    } catch (err) {
+      console.error("Erro ao voltar ciclo:", err);
+    }
+  }
+
+  /** Desclassifica uma startup com confirmação. */
   async function handleDesclassificar(id: number): Promise<void> {
+    const startup = startups.find(s => s.id === id);
+    if (!window.confirm(`Deseja desclassificar "${startup?.nomeProjeto}"? Ela poderá ser reativada depois.`)) return;
     try {
       await desclassificarStartup(id);
       await carregarStartups();
@@ -109,7 +129,19 @@ function App() {
     }
   }
 
-  // Registra o envio de relatório
+  /** Reativa uma startup desclassificada com confirmação. */
+  async function handleReativar(id: number): Promise<void> {
+    const startup = startups.find(s => s.id === id);
+    if (!window.confirm(`Deseja reativar "${startup?.nomeProjeto}"? Ela voltará para o Ciclo 1.`)) return;
+    try {
+      await reativarStartup(id);
+      await carregarStartups();
+    } catch (err) {
+      console.error("Erro ao reativar startup:", err);
+    }
+  }
+
+  /** Registra o relatório como enviado. */
   async function handleRegistrarRelatorio(id: number): Promise<void> {
     try {
       await registrarRelatorio(id);
@@ -119,7 +151,19 @@ function App() {
     }
   }
 
-  // Adiciona uma nova startup
+  /** Cancela o contrato de uma startup. */
+  async function handleCancelarContrato(id: number): Promise<void> {
+    const startup = startups.find(s => s.id === id);
+    if (!window.confirm(`Deseja cancelar o contrato de "${startup?.nomeProjeto}"?`)) return;
+    try {
+      await cancelarContrato(id);
+      await carregarStartups();
+    } catch (err) {
+      console.error("Erro ao cancelar contrato:", err);
+    }
+  }
+
+  /** Cadastra uma nova startup. */
   async function handleNovaStartup(novaStartup: IStartup): Promise<void> {
     try {
       await cadastrarStartup(converterParaStartupAPI(novaStartup));
@@ -130,14 +174,25 @@ function App() {
     }
   }
 
-  // Faz logout do usuário
+  /** Atualiza os dados de uma startup existente. */
+  async function handleEditarStartup(startupEditada: IStartup): Promise<void> {
+    try {
+      await atualizarStartup(startupEditada.id, converterParaStartupAPI(startupEditada));
+      await carregarStartups();
+      setModalEditarStartup(null);
+    } catch (err) {
+      console.error("Erro ao editar startup:", err);
+    }
+  }
+
+  /** Faz logout do usuário. */
   function handleLogout(): void {
     logout();
     setAutenticado(false);
     setStartups([]);
   }
 
-  // Contadores derivados do estado atual
+  // Contadores
   const contadores = useMemo<IContadores>(() => {
     const ativas = startups.filter((s) => s.status === "Ativa");
     return {
@@ -150,51 +205,61 @@ function App() {
     };
   }, [startups]);
 
-  // Lista filtrada pelo menu lateral
+  // Lista filtrada por ciclo e pesquisa
   const startupsFiltradas = useMemo<IStartup[]>(() => {
-    if (filtro === "Todas")            return startups.filter((s) => s.status === "Ativa");
-    if (filtro === "Desclassificadas") return startups.filter((s) => s.status === "Desclassificada");
-    return startups.filter((s) => s.status === "Ativa" && s.ciclo === filtro);
-  }, [startups, filtro]);
+    let lista: IStartup[];
+    if (filtro === "Todas")            lista = startups.filter((s) => s.status === "Ativa");
+    else if (filtro === "Desclassificadas") lista = startups.filter((s) => s.status === "Desclassificada");
+    else lista = startups.filter((s) => s.status === "Ativa" && s.ciclo === filtro);
 
-  // Se não estiver autenticado, exibe a tela de login
+    if (pesquisa.trim()) {
+      const termo = pesquisa.toLowerCase();
+      lista = lista.filter(
+        (s) =>
+          s.nomeProjeto.toLowerCase().includes(termo) ||
+          s.nomeFundador.toLowerCase().includes(termo)
+      );
+    }
+
+    return lista;
+  }, [startups, filtro, pesquisa]);
+
   if (!autenticado) {
     return <Login onLoginSuccess={() => setAutenticado(true)} />;
   }
 
   return (
     <>
-      {/* header – barra de navegação superior */}
       <Navbar
         titulo="Incubadora de Empresas"
         onNovaStartup={() => setModalNovaStartup(true)}
         onLogout={handleLogout}
+        pesquisa={pesquisa}
+        onPesquisaChange={setPesquisa}
       />
 
       <div className="layout-wrapper">
-        {/* aside – menu lateral de filtros */}
         <Sidebar
           filtroAtivo={filtro}
           onFiltroChange={setFiltro}
           contadores={contadores}
         />
 
-        {/* main – conteúdo principal da página */}
         <main className="conteudo">
-
-          {/* section – painel de resumo (dashboard) */}
           <section aria-label="Painel de resumo">
             <Dashboard contadores={contadores} />
           </section>
 
-          {/* section – lista de startups */}
           <section aria-label="Lista de startups">
+
             <p className="secao-label">
               {carregando ? "Carregando..." : `${startupsFiltradas.length} projeto${startupsFiltradas.length !== 1 ? "s" : ""}`}
             </p>
 
             {!carregando && startupsFiltradas.length === 0 ? (
-              <div className="empty-state">Nenhuma startup nesta categoria.</div>
+              <div className="empty-state">
+                {pesquisa ? "Nenhuma startup encontrada para essa pesquisa." : "Nenhuma startup nesta categoria."}
+              </div>
             ) : (
               <div className="cards-grid">
                 {startupsFiltradas.map((startup) => (
@@ -202,9 +267,13 @@ function App() {
                     key={startup.id}
                     startup={startup}
                     onAvancarCiclo={handleAvancarCiclo}
+                    onVoltarCiclo={handleVoltarCiclo}
                     onDesclassificar={handleDesclassificar}
+                    onReativar={handleReativar}
                     onRegistrarRelatorio={handleRegistrarRelatorio}
+                    onCancelarContrato={handleCancelarContrato}
                     onVerDetalhes={setModalStartup}
+                    onEditar={setModalEditarStartup}
                   />
                 ))}
               </div>
@@ -215,16 +284,22 @@ function App() {
         </main>
       </div>
 
-      {/* Modal de detalhes */}
       {modalStartup && (
         <Modal startup={modalStartup} onFechar={() => setModalStartup(null)} />
       )}
 
-      {/* Modal de nova startup */}
       {modalNovaStartup && (
         <ModalNovaStartup
           onFechar={() => setModalNovaStartup(false)}
           onSalvar={handleNovaStartup}
+        />
+      )}
+
+      {modalEditarStartup && (
+        <ModalEditarStartup
+          startup={modalEditarStartup}
+          onFechar={() => setModalEditarStartup(null)}
+          onSalvar={handleEditarStartup}
         />
       )}
     </>

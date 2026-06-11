@@ -17,7 +17,7 @@ export interface IStartup {
   id: number;
   nomeProjeto: string;
   nomeFundador: string;
-  setor: SetorStartup;
+  setor: string;
   ciclo: CicloStartup;
   status: StatusStartup;
   dataEntrada: string; // formato: "AAAA-MM"
@@ -47,8 +47,12 @@ export interface IPropsDashboard {
 export interface IPropsStartupCard {
   startup: IStartup;
   onAvancarCiclo: (id: number) => void;
+  onVoltarCiclo: (id: number) => void;
   onDesclassificar: (id: number) => void;
+  onReativar: (id: number) => void;
   onRegistrarRelatorio: (id: number) => void;
+  onCancelarContrato: (id: number) => void;
+  onEditar: (startup: IStartup) => void;
   onVerDetalhes: (startup: IStartup) => void;
 }
 

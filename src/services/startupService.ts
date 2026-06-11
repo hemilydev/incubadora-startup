@@ -54,6 +54,14 @@ export async function avancarCiclo(id: number): Promise<Startup> {
 }
 
 /**
+ * Volta a startup para o ciclo anterior.
+ */
+export async function voltarCiclo(id: number): Promise<Startup> {
+  const response = await api.patch(`/api/startups/${id}/voltar`);
+  return response.data;
+}
+
+/**
  * Desclassifica uma startup.
  */
 export async function desclassificarStartup(id: number): Promise<Startup> {
@@ -62,9 +70,25 @@ export async function desclassificarStartup(id: number): Promise<Startup> {
 }
 
 /**
+ * Reativa uma startup desclassificada, voltando para o Ciclo 1.
+ */
+export async function reativarStartup(id: number): Promise<Startup> {
+  const response = await api.patch(`/api/startups/${id}/reativar`);
+  return response.data;
+}
+
+/**
  * Registra o relatório de uma startup como enviado.
  */
 export async function registrarRelatorio(id: number): Promise<Startup> {
   const response = await api.patch(`/api/startups/${id}/relatorio`);
+  return response.data;
+}
+
+/**
+ * Cancela o registro de contrato de uma startup.
+ */
+export async function cancelarContrato(id: number): Promise<Startup> {
+  const response = await api.patch(`/api/startups/${id}/cancelar-contrato`);
   return response.data;
 }
