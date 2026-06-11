@@ -1,6 +1,6 @@
 # Incubadora de Empresas – Sistema de Gestão de Startups
 
-> Trabalho 2 — React, TypeScript e Bootstrap  
+> Trabalho Final — React, TypeScript, Bootstrap e integração com Spring Boot  
 > Disciplina: Desenvolvimento de Software WEB  
 > Prof. Alexandre Cláudio de Almeida
 
@@ -8,7 +8,7 @@
 
 ## Sobre o Projeto
 
-Aplicação web para gerenciamento interno da Incubadora de Empresas da PUC Goiás, desenvolvida com **React + Vite + TypeScript** e **Bootstrap 5 (CDN)**.
+Aplicação web para gerenciamento interno da Incubadora de Empresas da PUC Goiás, desenvolvida com **React + Vite + TypeScript** e **Bootstrap 5 (CDN)**, integrada a um back-end Spring Boot com autenticação JWT.
 
 O sistema permite acompanhar as startups em cada ciclo da incubadora:
 - **Ciclo 1** — Pré-incubação (Ideação)
@@ -17,109 +17,127 @@ O sistema permite acompanhar as startups em cada ciclo da incubadora:
 
 ---
 
+## Funcionalidades
+
+| Ação | Descrição |
+|------|-----------|
+| Login com JWT | Autenticação segura — sem login, nenhum endpoint é acessível |
+| Cadastrar startup | Formulário com nome, fundador, setor, ciclo, data de entrada e descrição |
+| Editar startup | Atualiza qualquer campo de uma startup existente |
+| Avançar ciclo | Move a startup para o próximo ciclo com confirmação |
+| Voltar ciclo | Retorna a startup ao ciclo anterior com confirmação |
+| Registrar contrato | Marca o contrato da startup como assinado |
+| Cancelar contrato | Desfaz o registro de contrato |
+| Desclassificar | Remove a startup das ativas com confirmação |
+| Reativar startup | Reativa uma startup desclassificada, voltando para o Ciclo 1 |
+| Ver detalhes | Modal com informações completas da startup |
+| Filtrar por ciclo | Sidebar filtra por Ciclo 1, 2, 3 ou Desclassificadas |
+| Pesquisar | Barra de pesquisa no navbar por nome do projeto ou fundador |
+| Dashboard | Contadores atualizam automaticamente a cada ação |
+| Logout | Encerra a sessão removendo o token do localStorage |
+
+---
+
 ## Justificativa da Arquitetura
- 
+
 A divisão de componentes seguiu o princípio de que **cada componente faz apenas uma coisa**.
- 
-| Componente         | O que faz |
-|--------------------|-----------|
-| `Navbar`           | Exibe a logo, o título e o botão de nova startup. Não precisa saber nada além disso. |
-| `Sidebar`          | Exibe os filtros por ciclo. Não conhece as startups, apenas recebe callbacks. |
-| `Dashboard`        | Mostra os 6 contadores. Recebe apenas os números via props — só renderiza, não pensa. |
-| `StartupCard`      | Representa uma startup individual com os botões de ação disponíveis para o seu status atual. |
-| `Modal`            | Exibe os detalhes completos de uma startup selecionada. |
-| `ModalNovaStartup` | Formulário para cadastrar uma nova startup no sistema, com escolha do ciclo de entrada. |
-| `Footer`           | Exibe a identificação acadêmica com a tag `<address>`. |
-| `App`              | Único lugar com estado (`useState`). Calcula os contadores com `useMemo` e passa tudo para baixo via props. |
- 
+
+| Componente | O que faz |
+|------------|-----------|
+| `Navbar` | Logo, título, barra de pesquisa, botão nova startup e logout. |
+| `Sidebar` | Filtros por ciclo. Não conhece as startups, apenas recebe callbacks. |
+| `Dashboard` | Mostra os 6 contadores. Recebe apenas números via props. |
+| `StartupCard` | Representa uma startup com todos os botões de ação. |
+| `Modal` | Exibe detalhes completos de uma startup selecionada. |
+| `ModalNovaStartup` | Formulário de cadastro com todos os campos incluindo data. |
+| `ModalEditarStartup` | Formulário de edição pré-preenchido com os dados atuais. |
+| `Footer` | Identificação acadêmica com a tag `<address>`. |
+| `Login` | Tela de autenticação com email e senha. |
+| `App` | Estado global. Carrega dados do back-end e passa para os filhos via props. |
+
 ### Fluxo de dados
- 
+
 ```
-App (único estado: startups[])
-├── Navbar              ← recebe título + callback para abrir ModalNovaStartup
-├── Sidebar             ← recebe filtro ativo + contadores + callbacks
-├── Dashboard           ← recebe contadores (só leitura)
-├── StartupCard         ← recebe startup + callbacks de ação
-│   └── Modal           ← recebe startup selecionada
-└── ModalNovaStartup    ← recebe callbacks de salvar e fechar
+App (estado global: startups[])
+├── Navbar              ← pesquisa, nova startup, logout
+├── Sidebar             ← filtro ativo + contadores + callbacks
+├── Dashboard           ← contadores (só leitura)
+├── StartupCard         ← startup + todos os callbacks de ação
+│   ├── Modal           ← startup selecionada para detalhes
+│   └── ModalEditarStartup ← startup selecionada para edição
+└── ModalNovaStartup    ← callbacks de salvar e fechar
 ```
 
-Quando o administrador clica em **"Avançar Ciclo"**, o `StartupCard` chama `onAvancarCiclo(id)` → `App` atualiza o estado → React re-renderiza o `Dashboard` e a lista automaticamente.
- 
-Quando o administrador clica em **"+ Nova Startup"**, o `Navbar` chama `onNovaStartup()` → `App` abre o `ModalNovaStartup` → ao salvar, a nova startup é adicionada à lista e os contadores atualizam automaticamente.
- 
-### Por que o estado fica todo no `App.tsx`?
- 
-Quando uma ação acontece num `StartupCard` (ex: avançar ciclo), os contadores do `Dashboard` precisam atualizar imediatamente. Para isso funcionar, o estado precisa estar num lugar só — o `App.tsx` — e ser passado para os filhos via props. Isso segue o padrão **lifting state up** do React.
- 
-### Por que `useMemo`?
- 
-Os contadores e a lista filtrada são recalculados toda vez que o estado muda. Com `useMemo`, o React só refaz esse cálculo quando necessário, evitando processamento desnecessário.
- 
-### Por que centralizar as interfaces em `types/index.ts`?
- 
-Com todas as interfaces num arquivo só, qualquer componente que precise de um tipo importa do mesmo lugar. Isso evita duplicação e garante consistência nos dados da aplicação.
- 
+### Integração com o back-end
+
+O front-end consome a API REST do back-end via **axios** com interceptor JWT:
+
+```
+src/services/
+├── api.ts              # Instância do axios com interceptor JWT automático
+├── authService.ts      # Login, logout e verificação de autenticação
+└── startupService.ts   # Todas as operações CRUD e ações sobre startups
+```
+
 ---
- 
+
 ## Estrutura de Pastas
- 
+
 ```
 src/
 ├── components/
-│   ├── Navbar/            # Barra superior (<header>) + botão nova startup
-│   ├── Sidebar/           # Filtros laterais (<aside>)
-│   ├── Dashboard/         # Contadores dinâmicos (<section>)
-│   ├── StartupCard/       # Card de cada projeto (<article>)
-│   ├── Modal/             # Detalhes da startup
-│   ├── ModalNovaStartup/  # Formulário de cadastro de nova startup
-│   └── Footer/            # Rodapé com identificação (<address>)
+│   ├── Navbar/                # Barra superior com pesquisa e logout
+│   ├── Sidebar/               # Filtros laterais
+│   ├── Dashboard/             # Contadores dinâmicos
+│   ├── StartupCard/           # Card de cada projeto com ações
+│   ├── Modal/                 # Detalhes da startup
+│   ├── ModalNovaStartup/      # Formulário de cadastro
+│   ├── ModalEditarStartup/    # Formulário de edição
+│   ├── Footer/                # Rodapé com identificação
+│   └── Login.tsx              # Tela de login
+├── services/
+│   ├── api.ts                 # Axios configurado com JWT
+│   ├── authService.ts         # Serviço de autenticação
+│   └── startupService.ts      # Serviço de startups
 ├── data/
-│   └── startups.ts        # Dados iniciais das startups
+│   └── startups.ts            # Dados iniciais (substituídos pela API)
 ├── styles/
-│   └── global.css         # Estilos personalizados
+│   └── global.css             # Estilos personalizados
 ├── types/
-│   └── index.ts           # Interfaces TypeScript
-├── App.tsx                # Estado global da aplicação
-└── main.tsx               # Ponto de entrada
+│   └── index.ts               # Interfaces TypeScript
+├── App.tsx                    # Estado global da aplicação
+└── main.tsx                   # Ponto de entrada
 ```
- 
----
- 
-## Funcionalidades
- 
-| Ação | Descrição |
-|---|---|
-| Adicionar startup | Cadastra uma nova startup escolhendo o ciclo de entrada |
-| Filtrar por ciclo | Sidebar filtra as startups por Ciclo 1, 2, 3 ou Desclassificadas |
-| Avançar ciclo | Move a startup do ciclo atual para o próximo |
-| Registrar relatório | Marca o relatório como enviado |
-| Desclassificar | Remove a startup da lista de ativas |
-| Ver detalhes | Abre modal com informações completas |
-| Dashboard | Contadores atualizam automaticamente a cada ação |
- 
+
 ---
 
 ## Semântica HTML5 utilizada
- 
+
 `<header>` · `<main>` · `<section>` · `<aside>` · `<article>` · `<footer>` · `<address>`
- 
+
 ---
- 
+
 ## Como rodar
- 
+
+### Pré-requisitos
+- Node.js 18+
+- Back-end Spring Boot rodando na porta 8080
+
 ```bash
 npm install
 npm run dev
 ```
- 
+
 Acesse: `http://localhost:5173`
- 
+
+**Login padrão:**
+- Email: `admin@incubadora.com`
+- Senha: `admin123`
+
 ---
- 
+
 ## Identificação
- 
+
 **Hemily Ramos**  
 Análise e Desenvolvimento de Sistemas — Escola Politécnica e de Artes da PUC Goiás  
-Desenvolvimento de Software WEB — Prof. Alexandre Cláudio de Almeida — Abril de 2026
- 
+Desenvolvimento de Software WEB — Prof. Alexandre Cláudio de Almeida — Junho de 2026
